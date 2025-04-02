@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRMPosition Training Content</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="assets/logo.jpeg" alt="CRMPosition Logo" class="logo">
+        </div>
+        <h1>Exclusive <span class="highlight">CRM Training</span> Content</h1>
+        <p class="subtitle">Access premium training materials for Salesforce, Adobe, and Microsoft Dynamics CRM platforms</p>
+    </header>
+
+    <main>
+        <section class="steps-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h2>Subscribe to Our Channel</h2>
+                <p>Make sure you're subscribed to the CRMPosition YouTube channel to access our exclusive training content.</p>
+                <a href="https://www.youtube.com/@CRMPosition?sub_confirmation=1" target="_blank" class="button">Subscribe Now</a>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h2>Verify Your Subscription</h2>
+                <p>Verify your YouTube subscription status using our secure verification system to unlock access.</p>
+                <a href="verify.html" class="button">Verify Subscription</a>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h2>Access Training Materials</h2>
+                <p>Browse and download our comprehensive CRM training materials organized by platform and topic.</p>
+                <a href="content.html" class="button" id="content-button">View Content</a>
+            </div>
+        </section>
+        
+        <section class="features-section">
+            <h2>What You'll Get</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Salesforce Training</h3>
+                    <p>Comprehensive guides and tutorials for Salesforce CRM implementation, customization, and administration.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Adobe Marketing Cloud</h3>
+                    <p>In-depth materials on Adobe Experience Cloud products for marketing automation and customer experience.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h3>Microsoft Dynamics</h3>
+                    <p>Detailed guides for Microsoft Dynamics 365 implementation, customization, and business process automation.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>CRM Comparisons</h3>
+                    <p>Side-by-side comparisons of major CRM platforms to help you choose the right solution for your needs.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© <span id="current-year"></span> CRMPosition. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Check if user is verified
+        document.addEventListener('DOMContentLoaded', function() {
+            const isVerified = localStorage.getItem('yt_subscription_verified');
+            const contentButton = document.getElementById('content-button');
+            
+            if (isVerified !== 'true') {
+                contentButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('Please verify your YouTube subscription first.');
+                    window.location.href = 'verify.html';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

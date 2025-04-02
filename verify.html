@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Subscription - CRMPosition Training</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="assets/logo.jpeg" alt="CRMPosition Logo" class="logo">
+            </a>
+        </div>
+        <h1>Subscription <span class="highlight">Verification</span></h1>
+        <p class="subtitle">Verify your YouTube subscription to access exclusive CRM training content</p>
+    </header>
+
+    <main class="verify-container">
+        <div class="verify-card">
+            <h2>YouTube Subscription Verification</h2>
+            <p>To access our exclusive CRM training materials, please verify that you're subscribed to the CRMPosition YouTube channel.</p>
+            
+            <div class="info-box">
+                <div class="info-title">How it works:</div>
+                <p>1. Click the "Verify Subscription" button below</p>
+                <p>2. Sign in with your Google account (the same one you use for YouTube)</p>
+                <p>3. Grant permission to check your subscription status</p>
+                <p>4. Once verified, you'll get immediate access to all training materials</p>
+            </div>
+            
+            <div id="verification-status"></div>
+            
+            <button id="authorize-button" class="button">Verify Subscription</button>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Verifying your subscription...</p>
+            </div>
+            
+            <p style="margin-top: 2rem; font-size: 0.9rem;">Not subscribed yet? <a href="https://www.youtube.com/@CRMPosition?sub_confirmation=1" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Subscribe to our channel</a> first, then come back to verify.</p>
+        </div>
+        
+        <div class="verify-card">
+            <h2>Why Subscribe?</h2>
+            <p>By subscribing to our YouTube channel, you'll get:</p>
+            <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li>Access to all our premium CRM training materials</li>
+                <li>Notifications about new training videos and content</li>
+                <li>Regular updates on Salesforce, Adobe, and Microsoft Dynamics</li>
+                <li>Tips and tricks for CRM implementation and optimization</li>
+            </ul>
+            <p>Your subscription helps us continue creating high-quality CRM training content.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>© <span id="current-year"></span> CRMPosition. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // YouTube API Client ID (from your Google Cloud Project)
+        const CLIENT_ID = 'YOUR_CLIENT_ID';
+        const API_KEY = 'YOUR_API_KEY';
+        
+        // CRMPosition YouTube Channel ID
+        const CHANNEL_ID = 'UCxxxxxxxxxxxxxxxxxxxxxxx'; // Replace with actual channel ID
+        
+        // Discovery docs and scopes for the API
+        const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"];
+        const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
+        
+        let authorizeButton = document.getElementById('authorize-button');
+        let verificationStatus = document.getElementById('verification-status');
+        let loadingIndicator = document.getElementById('loading');
+        
+        // Load the API client and auth2 library
+        function handleClientLoad() {
+            gapi.load('client:auth2', initClient);
+        }
+        
+        // Initialize the API client library
+        function initClient() {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: DISCOVERY_DOCS,
+                scope: SCOPES
+            }).then(function () {
+                // Listen for sign-in state changes
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+                
+                // Handle the initial sign-in state
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                
+                // Add click handler for the authorize button
+                authorizeButton.onclick = handleAuthClick;
+            }).catch(function(error) {
+                console.error('Error initializing YouTube API client', error);
+                verificationStatus.innerHTML = `
+                    <div class="error">
+                        <p>Error initializing verification system. Please try again later.</p>
+                    </div>
+                `;
+            });
+        }
+        
+        // Update UI based on sign-in state
+        function updateSigninStatus(isSignedIn) {
+            if (isSignedIn) {
+                authorizeButton.style.display = 'none';
+                loadingIndicator.style.display = 'flex';
+                checkSubscription();
+            } else {
+                authorizeButton.style.display = 'block';
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // Handle authorization click
+        function handleAuthClick() {
+            gapi.auth2.getAuthInstance().signIn();
+        }
+        
+        // Check if user is subscribed to the channel
+        function checkSubscription() {
+            gapi.client.youtube.subscriptions.list({
+                part: 'snippet',
+                mine: true,
+                forChannelId: CHANNEL_ID,
+                maxResults: 1
+            }).then(function(response) {
+                loadingIndicator.style.display = 'none';
+                
+                if (response.result.items && response.result.items.length > 0) {
+                    // User is subscribed
+                    verificationStatus.innerHTML = `
+                        <div class="success">
+                            <p><strong>Subscription verified!</strong> Thank you for subscribing to CRMPosition.</p>
+                            <p>You now have access to all our exclusive training materials.</p>
+                        </div>
+                    `;
+                    
+                    // Store verification in localStorage
+                    localStorage.setItem('yt_subscription_verified', 'true');
+                    
+                    // Add button to access content
+                    verificationStatus.innerHTML += `
+                        <a href="content.html" class="button" style="margin-top: 1rem;">
+                            Access Training Content
+                        </a>
+                    `;
+                } else {
+                    // User is not subscribed
+                    verificationStatus.innerHTML = `
+                        <div class="error">
+                            <p><strong>Not subscribed.</strong> You need to subscribe to the CRMPosition YouTube channel to access our training materials.</p>
+                        </div>
+                        <a href="https://www.youtube.com/@CRMPosition?sub_confirmation=1" target="_blank" class="button" style="margin-top: 1rem;">
+                            Subscribe Now
+                        </a>
+                        <button onclick="checkSubscription()" class="button" style="margin-top: 0.5rem; background-color: #666;">
+                            Check Again
+                        </button>
+                    `;
+                }
+            }).catch(function(error) {
+                loadingIndicator.style.display = 'none';
+                console.error('Error checking subscription status', error);
+                verificationStatus.innerHTML = `
+                    <div class="error">
+                        <p>Error checking subscription status. Please try again later.</p>
+                    </div>
+                    <button onclick="checkSubscription()" class="button" style="margin-top: 1rem;">
+                        Try Again
+                    </button>
+                `;
+            });
+        }
+        
+        // For demo purposes - bypass verification (remove in production)
+        function bypassVerification() {
+            localStorage.setItem('yt_subscription_verified', 'true');
+            window.location.href = 'content.html';
+        }
+        
+        // Load the YouTube API
+        window.onload = function() {
+            // Check if already verified
+            if (localStorage.getItem('yt_subscription_verified') === 'true') {
+                verificationStatus.innerHTML = `
+                    <div class="success">
+                        <p><strong>Already verified!</strong> You have access to all our training materials.</p>
+                    </div>
+                    <a href="content.html" class="button" style="margin-top: 1rem;">
+                        Access Training Content
+                    </a>
+                `;
+                authorizeButton.style.display = 'none';
+            }
+            
+            // Load the API
+            handleClientLoad();
+            
+            // Add hidden bypass button for demo (remove in production)
+            document.body.innerHTML += `
+                <button onclick="bypassVerification()" style="position: fixed; bottom: 10px; right: 10px; opacity: 0.1; font-size: 10px;">
+                    Demo Bypass
+                </button>
+            `;
+        };
+    </script>
+</body>
+</html>

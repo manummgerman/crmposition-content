@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Content - CRMPosition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="assets/logo.jpeg" alt="CRMPosition Logo" class="logo">
+            </a>
+        </div>
+        <h1>CRM <span class="highlight">Training Content</span></h1>
+        <p class="subtitle">Access your exclusive training materials for Salesforce, Adobe, and Microsoft Dynamics</p>
+    </header>
+
+    <main class="content-container">
+        <div id="access-check">
+            <!-- This will be replaced by either content or access denied message -->
+        </div>
+        
+        <div id="content-area" style="display: none;">
+            <div class="welcome-message">
+                <h2 class="welcome-title">Welcome to Your Exclusive Training Content!</h2>
+                <p>Thank you for subscribing to the CRMPosition YouTube channel. Browse and download our comprehensive CRM training materials below.</p>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="Search for training materials...">
+            </div>
+            
+            <div class="category-filter">
+                <button class="category-button active" data-category="all">All Content</button>
+                <button class="category-button" data-category="salesforce">Salesforce</button>
+                <button class="category-button" data-category="adobe">Adobe</button>
+                <button class="category-button" data-category="microsoft">Microsoft Dynamics</button>
+            </div>
+            
+            <div id="document-grid" class="document-grid">
+                <!-- Documents will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© <span id="current-year"></span> CRMPosition. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Check if user is verified
+        document.addEventListener('DOMContentLoaded', function() {
+            const isVerified = localStorage.getItem('yt_subscription_verified');
+            const accessCheck = document.getElementById('access-check');
+            const contentArea = document.getElementById('content-area');
+            
+            if (isVerified === 'true') {
+                // User is verified, show content
+                accessCheck.style.display = 'none';
+                contentArea.style.display = 'block';
+                loadDocuments();
+            } else {
+                // User is not verified, show access denied
+                accessCheck.innerHTML = `
+                    <div class="verify-card">
+                        <h2>Access Restricted</h2>
+                        <p>You need to verify your YouTube subscription to access our exclusive training content.</p>
+                        <div class="info-box">
+                            <div class="info-title">How to get access:</div>
+                            <p>1. Make sure you're subscribed to the CRMPosition YouTube channel</p>
+                            <p>2. Complete the verification process to confirm your subscription</p>
+                            <p>3. Once verified, you'll get immediate access to all training materials</p>
+                        </div>
+                        <a href="verify.html" class="button">Verify Subscription</a>
+                    </div>
+                `;
+            }
+        });
+        
+        // Sample document data (in a real implementation, this would be loaded from a JSON file)
+        const documents = [
+            {
+                id: 1,
+                title: "Salesforce CRM Implementation Guide",
+                description: "Comprehensive guide for implementing Salesforce CRM in your organization, including best practices and configuration tips.",
+                category: "salesforce",
+                fileType: "pdf",
+                fileSize: "2.4 MB",
+                dateAdded: "2025-04-01",
+                downloadUrl: "documents/salesforce-implementation-guide.pdf"
+            },
+            {
+                id: 2,
+                title: "Adobe Experience Cloud Overview",
+                description: "In-depth overview of Adobe Experience Cloud products and how they integrate to create a comprehensive marketing solution.",
+                category: "adobe",
+                fileType: "pdf",
+                fileSize: "1.8 MB",
+                dateAdded: "2025-04-01",
+                downloadUrl: "documents/adobe-experience-cloud-overview.pdf"
+            },
+            {
+                id: 3,
+                title: "Microsoft Dynamics 365 Sales Guide",
+                description: "Detailed guide for using Microsoft Dynamics 365 for sales management, lead tracking, and opportunity management.",
+                category: "microsoft",
+                fileType: "pdf",
+                fileSize: "3.2 MB",
+                dateAdded: "2025-04-01",
+                downloadUrl: "documents/microsoft-dynamics-sales-guide.pdf"
+            },
+            {
+                id: 4,
+                title: "CRM Platform Comparison: Salesforce vs Adobe vs Microsoft",
+                description: "Side-by-side comparison of the major CRM platforms, helping you choose the right solution for your business needs.",
+                category: "all",
+                fileType: "pdf",
+                fileSize: "1.5 MB",
+                dateAdded: "2025-04-01",
+                downloadUrl: "documents/crm-platform-comparison.pdf"
+            }
+        ];
+        
+        // Load documents into the grid
+        function loadDocuments(category = 'all', searchTerm = '') {
+            const documentGrid = document.getElementById('document-grid');
+            documentGrid.innerHTML = '';
+            
+            let filteredDocs = documents;
+            
+            // Apply category filter
+            if (category !== 'all') {
+                filteredDocs = filteredDocs.filter(doc => doc.category === category);
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredDocs = filteredDocs.filter(doc => 
+                    doc.title.toLowerCase().includes(term) || 
+                    doc.description.toLowerCase().includes(term)
+                );
+            }
+            
+            // Display documents or empty message
+            if (filteredDocs.length === 0) {
+                documentGrid.innerHTML = `
+                    <div class="empty">
+                        <p>No documents found matching your criteria.</p>
+                    </div>
+                `;
+            } else {
+                filteredDocs.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.className = 'document-card';
+                    
+                    // Determine icon based on file type
+                    let icon = '📄';
+                    if (doc.fileType === 'pdf') icon = '📕';
+                    else if (doc.fileType === 'docx') icon = '📘';
+                    else if (doc.fileType === 'pptx') icon = '📙';
+                    else if (doc.fileType === 'xlsx') icon = '📗';
+                    
+                    docElement.innerHTML = `
+                        <div class="document-icon">${icon}</div>
+                        <h3 class="document-title">${doc.title}</h3>
+                        <p class="document-description">${doc.description}</p>
+                        <div class="document-meta">
+                            <span>Type: ${doc.fileType.toUpperCase()}</span>
+                            <span>Size: ${doc.fileSize}</span>
+                            <span>Added: ${formatDate(doc.dateAdded)}</span>
+                        </div>
+                        <a href="${doc.downloadUrl}" class="download-button" download>Download</a>
+                    `;
+                    
+                    documentGrid.appendChild(docElement);
+                });
+            }
+        }
+        
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Set up event listeners once content is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category filter buttons
+            const categoryButtons = document.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter documents
+                    const category = this.getAttribute('data-category');
+                    const searchTerm = document.getElementById('search-input').value;
+                    loadDocuments(category, searchTerm);
+                });
+            });
+            
+            // Search input
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', function() {
+                const activeCategory = document.querySelector('.category-button.active').getAttribute('data-category');
+                loadDocuments(activeCategory, this.value);
+            });
+        });
+    </script>
+</body>
+</html>
